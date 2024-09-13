@@ -1,0 +1,10 @@
+[package]
+name = "fiv-log"
+version = "0.1.0"
+edition = "2021"
+
+[net]
+git-fetch-with-cli=true
+
+[dependencies]
+fiv-date={git="ssh://github.com/Fives-55555/fiv-date.git",rev = "2493dea292a763fc248454ac59ba4125c58cfaf6"}
