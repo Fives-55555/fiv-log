@@ -2,11 +2,10 @@ use fiv_date::Date;
 use std::{
     fs::{File, OpenOptions},
     io::Write,
-    sync::Once,
+    sync::Mutex,
 };
 
 pub fn log<S: ToString>(info: LEVEL, msg: S) {
-    INIT.call_once(log_init);
     let file = get_log();
     match file.write_all(
         format!(
@@ -23,18 +22,31 @@ pub fn log<S: ToString>(info: LEVEL, msg: S) {
 }
 
 fn get_log() -> &'static mut File {
-    unsafe { LOG_FILE.as_mut().unwrap() }
+    unsafe {
+        match LOG_FILE {
+            Some(mut file)=>{
+                match file.lock() {
+                    Ok(raw_file)=>*raw_file,
+                    Err(_)=>impossible!()
+                }
+            },
+            None=>{
+                log_init();
+                get_log()
+            }
 }
 
 fn log_init() {
     unsafe {
         LOG_FILE = Some(
-            OpenOptions::new()
-                .write(true)
-                .append(true)
-                .create(true)
-                .open("last.log")
-                .unwrap(),
+            Mutex::new(
+                OpenOptions::new()
+                    .write(true)
+                    .append(true)
+                    .create(true)
+                    .open("last.log")
+                    .unwrap()
+                )
         );
     }
 }   
@@ -45,8 +57,7 @@ pub const DEBUG: LEVEL = LEVEL(INNERLEVEL::Debug);
 pub const ERROR: LEVEL = LEVEL(INNERLEVEL::Error);
 pub const FATAL: LEVEL = LEVEL(INNERLEVEL::Fatal);
 
-static INIT: Once = Once::new();
-static mut LOG_FILE: Option<File> = None;
+static mut LOG_FILE: Option<Mutex<File>> = None;
 
 pub struct LEVEL(INNERLEVEL);
 
