@@ -1,17 +1,30 @@
-use fiv_date::Date;
+use fiv_date::custom_format_struct;
 use std::{
     fs::{File, OpenOptions},
     io::Write,
     sync::Mutex,
+    time::SystemTime
 };
 
+custom_format_struct!(Date, "{DD}.{MM}.{YYYY}-{hh}:{mm}:{ss}.{fff}");
+
 pub fn log<S: ToString>(info: LEVEL, msg: S) {
-    let file = get_log();
+    let mut x = unsafe { LOG_FILE.lock().unwrap() };
+    let file = match x.as_mut() {
+        Some(file) => {
+            file
+        },
+        None => {
+            log_init();
+            log(info, msg);
+            return;
+        },
+    };
     match file.write_all(
         format!(
             "\n{}-{}; {}",
             info.to_string(),
-            Date::new().now(),
+            Date::now(&SystemTime::now()),
             msg.to_string()
         )
         .as_bytes(),
@@ -21,32 +34,17 @@ pub fn log<S: ToString>(info: LEVEL, msg: S) {
     }
 }
 
-fn get_log() -> &'static mut File {
-    unsafe {
-        match LOG_FILE {
-            Some(mut file)=>{
-                match file.lock() {
-                    Ok(raw_file)=>*raw_file,
-                    Err(_)=>impossible!()
-                }
-            },
-            None=>{
-                log_init();
-                get_log()
-            }
-}
-
 fn log_init() {
     unsafe {
-        LOG_FILE = Some(
-            Mutex::new(
+        LOG_FILE = Mutex::new(
+            Some(
                 OpenOptions::new()
                     .write(true)
                     .append(true)
                     .create(true)
                     .open("last.log")
                     .unwrap()
-                )
+            )
         );
     }
 }   
@@ -57,7 +55,7 @@ pub const DEBUG: LEVEL = LEVEL(INNERLEVEL::Debug);
 pub const ERROR: LEVEL = LEVEL(INNERLEVEL::Error);
 pub const FATAL: LEVEL = LEVEL(INNERLEVEL::Fatal);
 
-static mut LOG_FILE: Option<Mutex<File>> = None;
+static mut LOG_FILE: Mutex<Option<File>> = Mutex::new(None);
 
 pub struct LEVEL(INNERLEVEL);
 
