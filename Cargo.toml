@@ -7,4 +7,4 @@ edition = "2021"
 git-fetch-with-cli=true
 
 [dependencies]
-fiv-date={git="ssh://github.com/Fives-55555/fiv-date.git", rev="6441e887789818217e4d023f805a36f5ab3c9f9f"}
+fiv-date={git="ssh://github.com/Fives-55555/fiv-date.git", branch = "master"}
