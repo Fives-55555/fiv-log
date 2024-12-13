@@ -14,7 +14,7 @@ custom_format_struct!(Date, "{DD}.{MM}.{YYYY}-{hh}:{mm}:{ss}.{fff}");
 /// Maybe later I will add support for changing it with a function interface.
 /// The 'info' parameter prints the level for easy finding certain errors in large log files.
 /// The function is thread-safe and can be called in a parralel program, but understand
-/// there could be very small drawbacks(ns) at a large scale if every thread is tring to access the MutexLock.
+/// there could be very small drawbacks(ns) at a large scale if every thread is trying to access the MutexLock.
 /// In defense I don't know of a other way to access a file handle fast or write to a file asyncly.
 pub fn log<S: ToString>(info: LEVEL, msg: S) {
     let mut x = unsafe { 
