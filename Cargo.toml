@@ -3,8 +3,5 @@ name = "fiv-log"
 version = "0.1.0"
 edition = "2021"
 
-[net]
-git-fetch-with-cli=true
-
 [dependencies]
 fiv-date={git="ssh://github.com/Fives-55555/fiv-date.git", branch = "master"}
