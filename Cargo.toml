@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-fiv-date={git="ssh://github.com/Fives-55555/fiv-date.git", branch = "master"}
+fiv-date={git="https://github.com/Fives-55555/fiv-date.git", branch = "master"}
